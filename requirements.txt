@@ -1,0 +1,10 @@
+torch
+torchvision
+pandas
+numpy
+scikit-learn
+fastapi
+uvicorn
+redis
+apache-airflow
+jupyter
