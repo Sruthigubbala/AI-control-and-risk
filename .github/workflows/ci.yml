@@ -1,0 +1,39 @@
+name: Contract Intelligence CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code Repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python Runtime
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install System Utilities
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y tesseract-ocr poppler-utils
+
+    - name: Install Project Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest httpx
+        python -m spacy download en_core_web_sm
+
+    - name: Execute Automated Test Suite
+      run: |
+        pytest -v
+
+    - name: Log Build Status
+      run: echo "CI Verification Matrix Passed Successfully. Ready for AWS EC2 Container Deployment."

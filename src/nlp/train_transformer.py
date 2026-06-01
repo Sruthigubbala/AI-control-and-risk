@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 import torch
 import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
@@ -6,34 +9,37 @@ from src.nlp.classifier import LegalClauseClassifier
 
 # 1. Create a custom Dataset processor for legal text strings
 class LegalDataset(Dataset):
+
     def __init__(self, texts, labels, tokenizer, max_len=256):
+
         self.texts = texts
         self.labels = labels
         self.tokenizer = tokenizer
         self.max_len = max_len
-        
+
     def __len__(self):
+
         return len(self.texts)
-    
+
     def __getitem__(self, idx):
+
         text = str(self.texts[idx])
         label = self.labels[idx]
-        
-        # Tokenize inputs according to transformer specifications
-        encoding = self.tokenizer.encode_plus(
+
+        encoding = self.tokenizer(
             text,
             add_special_tokens=True,
             max_length=self.max_len,
-            padding='max_length',
+            padding="max_length",
             truncation=True,
             return_attention_mask=True,
-            return_tensors='pt',
+            return_tensors="pt"
         )
-        
+
         return {
-            'input_ids': encoding['input_ids'].flatten(),
-            'attention_mask': encoding['attention_mask'].flatten(),
-            'label': torch.tensor(label, dtype=torch.long)
+            "input_ids": encoding["input_ids"].squeeze(0),
+            "attention_mask": encoding["attention_mask"].squeeze(0),
+            "label": torch.tensor(label, dtype=torch.long)
         }
 
 def train_epoch(model, data_loader, loss_fn, optimizer, device):
@@ -81,10 +87,15 @@ if __name__ == "__main__":
     # Initialize tokenizer and dataset handlers
     tokenizer = AutoTokenizer.from_pretrained("roberta-base")
     dataset = LegalDataset(sample_texts, sample_labels, tokenizer)
-    data_loader = DataLoader(dataset, batch_size=2, shuffle=True)
+    data_loader = DataLoader(
+    dataset,
+    batch_size=2,
+    shuffle=True,
+    num_workers=0
+)
     
     # Initialize our legal architecture model
-    model = LegalClauseClassifier(model_name="roberta-base", num_labels=2).to(device)
+    model = LegalClauseClassifier(model_name="roberta-base", num_classes=2).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
     loss_fn = nn.CrossEntropyLoss()
     
@@ -94,5 +105,6 @@ if __name__ == "__main__":
     print(f"Epoch Complete! Calculation Baseline Loss: {epoch_loss:.4f}")
     
     # Create models directory and save checkpoint if it passes
+    os.makedirs("models", exist_ok=True)
     torch.save(model.state_dict(), "models/legal_classifier.pth")
     print("Model checkpoint weights saved to 'models/legal_classifier.pth' successfully!")
