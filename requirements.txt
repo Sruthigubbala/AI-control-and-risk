@@ -1,3 +1,4 @@
+# Project Python dependencies
 torch
 torchvision
 pandas
@@ -8,3 +9,11 @@ uvicorn
 redis
 apache-airflow
 jupyter
+
+# NLP: spaCy and small English model
+spacy>=3.6.0
+en-core-web-sm==3.6.0
+
+# Test / HTTP helpers used in CI
+pytest
+httpx
