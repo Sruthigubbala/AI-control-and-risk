@@ -1,0 +1,6 @@
+[
+  "tests/test_pipeline.py::test_api_health_endpoint",
+  "tests/test_pipeline.py::test_evaluation_metrics_calculation",
+  "tests/test_pipeline.py::test_invalid_file_upload_rejection",
+  "tests/test_pipeline.py::test_legal_heuristics_booster"
+]
