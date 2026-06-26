@@ -18,9 +18,16 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-
-    - name: Install Pipenv
-      run: pip install pipenv
+        
+    - name: Install Project Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        # install project deps via the same python interpreter
+        python -m pip install -r requirements.txt
+        # install test/runtime extras and spaCy (pin if you want reproducible runs)
+        python -m pip install pytest httpx spacy==3.6.1
+        # download the language model after spaCy is installed
+        python -m spacy download en_core_web_sm    
 
     - name: Install System Utilities
       run: |
